@@ -35,7 +35,7 @@ class _DifficultyBodyState extends State<_DifficultyBody>
         ..repeat();
 
   final _store = StatsStore();
-  Stats _stats = Stats(); // default 0/0/0
+  Stats _stats = Stats(); // wins/losses/draws
 
   @override
   void initState() {
@@ -45,9 +45,14 @@ class _DifficultyBodyState extends State<_DifficultyBody>
 
   Future<void> _loadStats() async {
     final s = await _store.load();
-    if (mounted) {
-      setState(() => _stats = s);
-    }
+    if (mounted) setState(() => _stats = s);
+  }
+
+  /// Navigate to Game, then refresh stats when returning
+  Future<void> _startGame(BuildContext context, Difficulty d) async {
+    await Navigator.pushNamed(context, '/game', arguments: d);
+    final s = await _store.load();
+    if (mounted) setState(() => _stats = s);
   }
 
   @override
@@ -91,7 +96,7 @@ class _DifficultyBodyState extends State<_DifficultyBody>
                     children: [
                       const SizedBox(height: 8),
 
-                      // ---- Stats row (replaces "Pick your challenge") ----
+                      // ---- Stats row (top of screen) ----
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -103,36 +108,24 @@ class _DifficultyBodyState extends State<_DifficultyBody>
 
                       const Spacer(),
 
-                      // Big difficulty buttons
+                      // Big difficulty buttons -> use _startGame (await + refresh)
                       _BigChoiceButton(
                         icon: Icons.sentiment_satisfied_alt_rounded,
                         label: 'Easy',
                         subtitle: 'Random moves each turn',
-                        onPressed: () => Navigator.pushNamed(
-                          context,
-                          '/game',
-                          arguments: Difficulty.easy,
-                        ),
+                        onPressed: () => _startGame(context, Difficulty.easy),
                       ),
                       _BigChoiceButton(
                         icon: Icons.speed_rounded,
                         label: 'Medium',
                         subtitle: 'Alternates random & strategy',
-                        onPressed: () => Navigator.pushNamed(
-                          context,
-                          '/game',
-                          arguments: Difficulty.medium,
-                        ),
+                        onPressed: () => _startGame(context, Difficulty.medium),
                       ),
                       _BigChoiceButton(
                         icon: Icons.local_fire_department_rounded,
                         label: 'Hard',
                         subtitle: 'Strategy every single turn',
-                        onPressed: () => Navigator.pushNamed(
-                          context,
-                          '/game',
-                          arguments: Difficulty.hard,
-                        ),
+                        onPressed: () => _startGame(context, Difficulty.hard),
                       ),
 
                       const Spacer(),
