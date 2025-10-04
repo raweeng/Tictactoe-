@@ -19,4 +19,3 @@ flutter:
   uses-material-design: true
   assets:
     - assets/tictactoe.jpg
-    - assets/tictactoehome.jpg
