@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+// Home screen with title, image, and "Play" button
+// Navigates to /difficulty when "Play" is pressed
+// Uses a LayoutBuilder to constrain max width on large screens
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -8,7 +11,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Center(
-          // <-- centers horizontally
+          // centers horizontally
           child: LayoutBuilder(
             builder: (context, constraints) {
               // Keep a comfortable max width on large screens (web/desktop)
@@ -44,7 +47,6 @@ class HomeScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 24),
                           // Image under the title/tag-line
-                          // Make sure you added assets/tictactoe.png in pubspec.yaml
                           SizedBox(
                             height: 160,
                             child: Image.asset(

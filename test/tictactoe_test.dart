@@ -122,10 +122,7 @@ void main() {
     test('Hard plays opposite corner to human', () {
       final b = ['X', '', '', '', 'O', '', '', '', ''];
       // Make center occupied by O so opposite-corner rule triggers
-      b[4] = ''; // ensure center empty to test exact rule? No—rule 5 is center.
-      // To force opposite corner, occupy center with HUMAN and set AI to block forks:
-      // Simpler: set board with human in corner and center blocked (by human),
-      // then opposite-corner should be preferred later in the sequence.
+      b[4] = ''; // temporarily free center
       final b2 = ['X', '', '', '', 'X', '', '', '', ''];
       final move = aiMoveHard(b2, 'O');
       // Opposite of 0 is 8; if that’s taken by center strategy variations it may pick corner anyway.
@@ -137,12 +134,12 @@ void main() {
 
     test('Medium alternates: even turn -> Easy-like; odd turn -> Hard-like',
         () {
-      // Even AI turn count -> Easy (any legal)
+      // Even AI turn count to Easy-like (any legal move)
       final b = ['X', '', '', '', '', 'O', '', '', '', '', ''];
       final mEven = aiMoveMedium(b, 'O', 0);
       expect(isValidMove(b, mEven), isTrue);
 
-      // Odd AI turn count -> Hard (must block)
+      // Odd AI turn count to Hard (must block)
       final bThreat = ['X', 'X', '', '', '', 'O', '', '', '', '', ''];
       final mOdd = aiMoveMedium(bThreat, 'O', 1);
       expect(mOdd, 2); // must block

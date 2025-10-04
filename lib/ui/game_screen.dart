@@ -4,12 +4,16 @@ import '../logic/tictactoe.dart';
 import '../services/stats_store.dart';
 import '../main.dart';
 
+// Main game screen with board, stats, and controls
+// Uses GameState from tictactoe.dart and StatsStore for persistent stats
+// Handles user input, AI moves, and displays results
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
   @override
   State<GameScreen> createState() => _GameScreenState();
 }
 
+// State for GameScreen
 class _GameScreenState extends State<GameScreen> {
   late GameState s;
   final statsStore = StatsStore();
@@ -23,6 +27,7 @@ class _GameScreenState extends State<GameScreen> {
     _loadStats();
   }
 
+// Load stats from persistent storage
   Future<void> _loadStats() async {
     stats = await statsStore.load();
     if (mounted) setState(() {});
@@ -41,6 +46,7 @@ class _GameScreenState extends State<GameScreen> {
     _startNew((arg as Difficulty?) ?? Difficulty.easy);
   }
 
+// Current status string for bottom center
   String _status() {
     if (s.gameOver) {
       if (s.winner == null) return 'Draw';
@@ -49,6 +55,7 @@ class _GameScreenState extends State<GameScreen> {
     return "${s.current}'s turn • ${s.difficulty.name}";
   }
 
+// If it's the AI's turn, make its move after a short delay
   Future<void> _maybeAI() async {
     if (s.gameOver || s.current != s.aiPlayer) return;
     inputLocked = true;
@@ -80,7 +87,8 @@ class _GameScreenState extends State<GameScreen> {
     _maybeAI();
   }
 
-  /// Centered result dialog with "Play again"
+  // Show a centered dialog with the result message
+  // Has "Play again" and "Close" buttons
   Future<void> _showCenteredResult(String msg) async {
     await showDialog<void>(
       context: context,
@@ -95,7 +103,7 @@ class _GameScreenState extends State<GameScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Not const — uses runtime 'msg'
+              // No const-use: msg varies
               Text(
                 msg,
                 textAlign: TextAlign.center,
@@ -148,14 +156,14 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
-  /// Reset just the current match (keep tallies)
+  // Reset just the board for a new match; keep stats
   void _resetMatch() {
     setState(() {
       s = GameState(difficulty: s.difficulty, aiPlayer: s.aiPlayer);
     });
   }
 
-  /// Reset EVERYTHING: board + wins/losses/draws = 0
+  // Reset everything: board and stats
   Future<void> _resetAll() async {
     final ok = await showDialog<bool>(
       context: context,

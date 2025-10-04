@@ -1,20 +1,26 @@
+# Pubspec file for Flutter Tic-Tac-Toe app
 name: mobile_application_assignment_1
 description: Tic-Tac-Toe (Flutter, CSP2108)
 publish_to: "none"
 
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
 environment:
   sdk: ">=3.3.0 <4.0.0"
 
+#  Add dependencies here
 dependencies:
   flutter:
     sdk: flutter
   shared_preferences: ^2.3.2
 
+#  Add dev dependencies here
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
 
+#  Flutter-specific settings
 flutter:
   uses-material-design: true
   assets:

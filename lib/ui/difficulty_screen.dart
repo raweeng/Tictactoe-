@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../logic/tictactoe.dart';
 import '../services/stats_store.dart';
 
+// Screen to select difficulty level before starting a new game
+// Also shows current stats (wins/losses/draws) at the top
 class DifficultyScreen extends StatelessWidget {
   const DifficultyScreen({super.key});
 
@@ -21,6 +23,8 @@ class DifficultyScreen extends StatelessWidget {
   }
 }
 
+// Main body of the difficulty selection screen
+// Handles loading/saving stats and starting a new game
 class _DifficultyBody extends StatefulWidget {
   const _DifficultyBody();
 
@@ -28,6 +32,7 @@ class _DifficultyBody extends StatefulWidget {
   State<_DifficultyBody> createState() => _DifficultyBodyState();
 }
 
+// State for the difficulty selection screen
 class _DifficultyBodyState extends State<_DifficultyBody>
     with SingleTickerProviderStateMixin {
   late final AnimationController _bgAnim =
@@ -48,7 +53,8 @@ class _DifficultyBodyState extends State<_DifficultyBody>
     if (mounted) setState(() => _stats = s);
   }
 
-  /// Navigate to Game, then refresh stats when returning
+  // Start a new game with the given difficulty
+  // Waits for the game to finish, then reloads stats
   Future<void> _startGame(BuildContext context, Difficulty d) async {
     await Navigator.pushNamed(context, '/game', arguments: d);
     final s = await _store.load();
@@ -69,7 +75,7 @@ class _DifficultyBodyState extends State<_DifficultyBody>
 
         return Stack(
           children: [
-            // ✨ Subtle animated XO background
+            // Animated XO background
             Positioned.fill(
               child: AnimatedBuilder(
                 animation: _bgAnim,
@@ -78,7 +84,7 @@ class _DifficultyBodyState extends State<_DifficultyBody>
                 ),
               ),
             ),
-            // Gentle blur so content pops
+            // Blur effect
             Positioned.fill(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
@@ -86,7 +92,7 @@ class _DifficultyBodyState extends State<_DifficultyBody>
               ),
             ),
 
-            // Foreground content
+            // Main content
             Center(
               child: ConstrainedBox(
                 constraints: BoxConstraints.tightFor(width: maxW),
@@ -96,7 +102,7 @@ class _DifficultyBodyState extends State<_DifficultyBody>
                     children: [
                       const SizedBox(height: 8),
 
-                      // ---- Stats row (top of screen) ----
+                      // Stats row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -108,7 +114,7 @@ class _DifficultyBodyState extends State<_DifficultyBody>
 
                       const Spacer(),
 
-                      // Big difficulty buttons -> use _startGame (await + refresh)
+                      // Difficulty buttons
                       _BigChoiceButton(
                         icon: Icons.sentiment_satisfied_alt_rounded,
                         label: 'Easy',
@@ -145,7 +151,8 @@ class _DifficultyBodyState extends State<_DifficultyBody>
   }
 }
 
-/// Big pill button with subtle hover/press scale animation
+// Big button widget for difficulty choices
+// Has icon, label, subtitle, and onPressed callback
 class _BigChoiceButton extends StatefulWidget {
   const _BigChoiceButton({
     required this.icon,
@@ -245,7 +252,7 @@ class _BigChoiceButtonState extends State<_BigChoiceButton>
   }
 }
 
-/// Gradient headline used in the AppBar (const-friendly)
+// Gradient text title used in the AppBar
 class _GradientTitle extends StatelessWidget {
   const _GradientTitle(this.text);
   final String text;
@@ -271,7 +278,8 @@ class _GradientTitle extends StatelessWidget {
   }
 }
 
-/// Compact stat card used at the top of the screen
+// small box showing a single stat (wins/losses/draws)
+// Has label and value
 class _StatBox extends StatelessWidget {
   const _StatBox({required this.label, required this.value});
 
@@ -307,7 +315,8 @@ class _StatBox extends StatelessWidget {
   }
 }
 
-/// Painter for the subtle animated XO background (no assets)
+// custom painter for animated XO background
+// Draws a grid of X and O shapes that gently drift
 class _XOPainter extends CustomPainter {
   _XOPainter({required this.progress});
   final double progress;
@@ -335,10 +344,10 @@ class _XOPainter extends CustomPainter {
         final radius = min(cellW, cellH) * 0.22;
 
         if ((r + c).isEven) {
-          // O
+          // drow O
           canvas.drawCircle(Offset(cx, cy), radius, p);
         } else {
-          // X
+          // draw X
           final len = radius * 1.3;
           canvas.drawLine(
             Offset(cx - len, cy - len),

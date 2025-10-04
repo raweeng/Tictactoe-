@@ -1,8 +1,12 @@
 // lib/logic/tictactoe.dart
 import 'dart:math';
 
+// Difficulty levels used by the AI player
 enum Difficulty { easy, medium, hard }
 
+// Game state representation
+// - board: 9 cells, each '', 'X', or 'O'
+// - current: whose turn it is ('X' or 'O')
 class GameState {
   GameState({
     List<String>? board,
@@ -16,15 +20,23 @@ class GameState {
   })  : board = board ?? List.filled(9, ''),
         history = history ?? <int>[];
 
-  final List<String> board; // '', 'X', 'O'
-  String current; // 'X' or 'O'
-  final List<int> history; // indices played
-  bool gameOver;
-  String? winner; // 'X'/'O'/null
-  String aiPlayer; // who AI controls
-  Difficulty difficulty;
-  int aiTurnCount; // for Medium alternating
+// Board cells: '', 'X', 'O
+  final List<String> board;
 
+// Current player: 'X' or 'O'
+  String current;
+
+// Move history (for undo)
+  final List<int> history;
+  bool gameOver;
+
+// Winner: 'X', 'O', or null for draw/no winner yet
+  String? winner;
+  String aiPlayer; // who is the AI ('X' or 'O')
+  Difficulty difficulty;
+  int aiTurnCount; // for Medium alternating strategy
+
+// Create a copy of the game state
   GameState copy() => GameState(
         board: List.of(board),
         current: current,
@@ -37,9 +49,12 @@ class GameState {
       );
 }
 
-// ---------- Core rules ----------
+// ---------------Core rules---------------
+// Check if move is valid: index in 0..8 and cell empty
 bool isValidMove(List<String> b, int i) => i >= 0 && i < 9 && b[i].isEmpty;
 
+// Check for a winner: return 'X', 'O', or null
+// Returns the winner ('X' or 'O') or null if no winner yet
 String? checkWinner(List<String> b) {
   const lines = [
     [0, 1, 2],
@@ -58,14 +73,19 @@ String? checkWinner(List<String> b) {
   return null;
 }
 
+// Check for draw: board full and no winner
 bool isDraw(List<String> b) =>
     checkWinner(b) == null && b.every((v) => v.isNotEmpty);
 
+// Get list of empty cell indices
 List<int> emptyCells(List<String> b) => [
       for (var i = 0; i < 9; i++)
         if (b[i].isEmpty) i
     ];
 
+// Apply a move: update board, history, current player, gameOver, winner
+// Does nothing if move invalid or game over
+// Assumes move is valid
 void applyMove(GameState s, int i) {
   if (s.gameOver || !isValidMove(s.board, i)) return;
   s.board[i] = s.current;
@@ -84,7 +104,7 @@ void applyMove(GameState s, int i) {
   s.current = (s.current == 'X') ? 'O' : 'X';
 }
 
-// Undo: in Human vs AI, undo a FULL turn (AI + human)
+// Undo last move(s): reverts board, history, current player
 void undo(GameState s, {bool vsAI = true}) {
   if (s.history.isEmpty ||
       s.gameOver && (s.winner != null || isDraw(s.board))) {
@@ -105,12 +125,13 @@ void undo(GameState s, {bool vsAI = true}) {
 final _rng = Random();
 
 // Easy: random legal move
+// Returns a random empty cell index
 int aiMoveEasy(List<String> b) {
   final cells = emptyCells(b);
   return cells[_rng.nextInt(cells.length)];
 }
 
-// Try a winning/blocking move helper
+// Returns index to win/block or null
 int? _findLineFinish(List<String> b, String player) {
   const lines = [
     [0, 1, 2],
@@ -136,10 +157,12 @@ int? _findLineFinish(List<String> b, String player) {
   return null;
 }
 
+// Check if placing 'player' at 'move' creates two threats
 bool _wouldCreateTwoThreats(List<String> b, String player, int move) {
   final copy = List.of(b);
   copy[move] = player;
-  // Count immediate winning moves on next turn
+
+// Count how many winning moves this creates
   int count = 0;
   for (final m in emptyCells(copy)) {
     final tmp = List.of(copy);
@@ -150,7 +173,7 @@ bool _wouldCreateTwoThreats(List<String> b, String player, int move) {
   return false;
 }
 
-// Hard: finish -> block -> fork -> center -> opposite corner -> corner -> side
+// hard: implement full strategy
 int aiMoveHard(List<String> b, String ai) {
   final human = (ai == 'X') ? 'O' : 'X';
 
@@ -196,6 +219,7 @@ int aiMoveHard(List<String> b, String ai) {
 }
 
 // Medium: alternate random vs hard
+// On even AI turns, play easy; on odd turns, play hard
 int aiMoveMedium(List<String> b, String ai, int aiTurnCount) {
   if (aiTurnCount.isEven) {
     return aiMoveEasy(b);
